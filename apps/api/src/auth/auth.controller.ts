@@ -8,14 +8,17 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common'
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { ConfigService } from '@nestjs/config'
+import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
 import { AuthService } from './auth.service'
 import { generateCodeVerifier, generateState } from './pkce.util'
 import { SessionAuthGuard } from './session-auth.guard'
 import type { AuthenticatedRequest } from './session-auth.guard'
 import { PrismaService } from '../prisma/prisma.service'
+import { CurrentUserDto } from './dto/current-user.dto'
+import { SpotifyTokenDto } from './dto/spotify-token.dto'
 
 const OAUTH_COOKIE_MAX_AGE_MS = 5 * 60 * 1000
 const SESSION_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
@@ -34,6 +37,7 @@ export class AuthController {
   }
 
   @Get('spotify/login')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Start Spotify OAuth 2.0 authorization code + PKCE flow' })
   login(@Res() res: Response) {
     const state = generateState()
@@ -56,6 +60,7 @@ export class AuthController {
   }
 
   @Get('spotify/callback')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Spotify OAuth redirect target: exchanges code for tokens and starts a session' })
   async callback(
     @Query('code') code: string | undefined,
@@ -101,20 +106,26 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(SessionAuthGuard)
+  @ApiCookieAuth()
   @ApiOperation({ summary: 'Return the currently authenticated user' })
-  async me(@Req() req: AuthenticatedRequest) {
+  @ApiOkResponse({ type: CurrentUserDto })
+  @ApiUnauthorizedResponse({ description: 'No valid session cookie' })
+  async me(@Req() req: AuthenticatedRequest): Promise<CurrentUserDto> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: req.userId } })
     return { id: user.id, displayName: user.displayName, email: user.email }
   }
 
   @Get('spotify/token')
   @UseGuards(SessionAuthGuard)
+  @ApiCookieAuth()
   @ApiOperation({
     summary: 'Return a short-lived Spotify access token for the Web Playback SDK',
     description:
       'The Spotify refresh token never leaves the server; the client only ever receives a short-lived access token on demand.',
   })
-  async spotifyToken(@Req() req: AuthenticatedRequest) {
+  @ApiOkResponse({ type: SpotifyTokenDto })
+  @ApiUnauthorizedResponse({ description: 'No valid session cookie, or Spotify refresh failed and re-auth is required' })
+  async spotifyToken(@Req() req: AuthenticatedRequest): Promise<SpotifyTokenDto> {
     return this.authService.getValidSpotifyAccessToken(req.userId)
   }
 }

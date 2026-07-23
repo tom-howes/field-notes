@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common'
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { CountriesService } from './countries.service'
+import { CountryDto } from './dto/country.dto'
 
 @ApiTags('countries')
 @Controller('countries')
@@ -9,7 +10,8 @@ export class CountriesController {
 
   @Get()
   @ApiOperation({ summary: 'List all countries with their lock status (public reference data)' })
-  findAll() {
+  @ApiOkResponse({ type: [CountryDto] })
+  findAll(): Promise<CountryDto[]> {
     return this.countriesService.findAll()
   }
 }

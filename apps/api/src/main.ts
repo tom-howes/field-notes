@@ -22,6 +22,12 @@ async function bootstrap() {
     .setTitle('Field Notes API')
     .setDescription('Music geography guessing game API')
     .setVersion('0.1')
+    .addCookieAuth('session', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'session',
+      description: 'Set by GET /auth/spotify/callback after a successful Spotify OAuth login',
+    })
     .build()
   const document = SwaggerModule.createDocument(app, swaggerConfig)
   SwaggerModule.setup('docs', app, document)
