@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { haversineDistanceKm } from './distance.util'
 
 const MAX_ATTEMPTS = 6 // 5, 10, 15, 20, 25, 30 seconds
 const CLIP_SECONDS_STEP = 5
@@ -55,7 +56,7 @@ export class RoundsService {
   async submitGuess(userId: string, roundId: string, guessedCountryId: string) {
     const round = await this.prisma.round.findUnique({
       where: { id: roundId },
-      include: { song: true },
+      include: { song: { include: { country: true, artist: true } } },
     })
 
     if (!round) {
@@ -71,6 +72,17 @@ export class RoundsService {
     const correct = guessedCountryId === round.song.countryId
     const clipSeconds = round.currentAttempt * CLIP_SECONDS_STEP
     const isFinalAttempt = round.currentAttempt >= MAX_ATTEMPTS
+
+    const distanceKm = correct
+      ? 0
+      : await (async () => {
+          const guessedCountry = await this.prisma.country.findUnique({
+            where: { id: guessedCountryId },
+            select: { latitude: true, longitude: true },
+          })
+          if (!guessedCountry) throw new BadRequestException('Unknown country')
+          return haversineDistanceKm(guessedCountry, round.song.country)
+        })()
 
     await this.prisma.guessAttempt.create({
       data: {
@@ -108,6 +120,12 @@ export class RoundsService {
         roundComplete: true,
         attemptsTaken: round.currentAttempt,
         country: { id: country.id, name: country.name, isoCode: country.isoCode },
+        song: {
+          title: round.song.title,
+          artistName: round.song.artist.name,
+          spotifyTrackId: round.song.spotifyTrackId,
+          spotifyUrl: `https://open.spotify.com/track/${round.song.spotifyTrackId}`,
+        },
       }
     }
 
@@ -121,6 +139,7 @@ export class RoundsService {
       return {
         correct: false,
         roundComplete: true,
+        distanceKm,
         country: { id: country.id, name: country.name, isoCode: country.isoCode },
       }
     }
@@ -134,6 +153,7 @@ export class RoundsService {
     return {
       correct: false,
       roundComplete: false,
+      distanceKm,
       attemptNumber: nextAttempt,
       clipSeconds: nextAttempt * CLIP_SECONDS_STEP,
     }

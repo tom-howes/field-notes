@@ -24,6 +24,8 @@ model Country {
   name      String
   region    String?
   status    CountryStatus @default(LOCKED)
+  latitude  Float // centroid, for distance-based guess feedback
+  longitude Float // centroid, for distance-based guess feedback
   createdAt DateTime      @default(now()) @map("created_at")
 
   songs           Song[]
