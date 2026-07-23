@@ -59,12 +59,14 @@ model Song {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  spotifyUserId String   @unique @map("spotify_user_id")
-  displayName   String   @map("display_name")
-  email         String?
-  refreshToken  String?  @map("refresh_token")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id                    String    @id @default(uuid())
+  spotifyUserId         String    @unique @map("spotify_user_id")
+  displayName           String    @map("display_name")
+  email                 String?
+  refreshToken          String?   @map("refresh_token") // Spotify OAuth refresh token; never sent to the client
+  accessToken           String?   @map("access_token") // short-lived, cached to avoid refreshing on every request
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
 
   guessAttempts   GuessAttempt[]
   userCollections UserCollection[]
