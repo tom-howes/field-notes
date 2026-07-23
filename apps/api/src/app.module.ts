@@ -6,6 +6,8 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { PrismaModule } from './prisma/prisma.module'
 import { AuthModule } from './auth/auth.module'
+import { CountriesModule } from './countries/countries.module'
+import { RoundsModule } from './rounds/rounds.module'
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { AuthModule } from './auth/auth.module'
     }),
     PrismaModule,
     AuthModule,
+    CountriesModule,
+    RoundsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

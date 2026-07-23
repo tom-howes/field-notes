@@ -12,6 +12,12 @@ enum CountryStatus {
   UNLOCKED
 }
 
+enum RoundStatus {
+  IN_PROGRESS
+  WON
+  LOST
+}
+
 model Country {
   id        String        @id @default(uuid())
   isoCode   String        @unique @map("iso_code") // ISO 3166-1 alpha-2
@@ -52,6 +58,7 @@ model Song {
   country         Country          @relation(fields: [countryId], references: [id])
   guessAttempts   GuessAttempt[]
   userCollections UserCollection[]
+  rounds          Round[]
 
   @@index([countryId])
   @@index([artistId])
@@ -70,24 +77,43 @@ model User {
 
   guessAttempts   GuessAttempt[]
   userCollections UserCollection[]
+  rounds          Round[]
 
   @@map("users")
 }
 
-model GuessAttempt {
-  id              String   @id @default(uuid())
-  userId          String   @map("user_id")
-  roundId         String   @map("round_id") // groups attempts within one round at a song
-  songId          String   @map("song_id")
-  attemptNumber   Int      @map("attempt_number") // 1..6, maps to 5/10/15/20/25/30s
-  clipSeconds     Int      @map("clip_seconds")
-  guessedCountryId String? @map("guessed_country_id")
-  correct         Boolean
-  createdAt       DateTime @default(now()) @map("created_at")
+model Round {
+  id             String      @id @default(uuid())
+  userId         String      @map("user_id")
+  songId         String      @map("song_id")
+  status         RoundStatus @default(IN_PROGRESS)
+  currentAttempt Int         @default(1) @map("current_attempt") // 1..6, maps to 5/10/15/20/25/30s
+  createdAt      DateTime    @default(now()) @map("created_at")
+  completedAt    DateTime?   @map("completed_at")
 
-  user            User     @relation(fields: [userId], references: [id])
-  song            Song     @relation(fields: [songId], references: [id])
-  guessedCountry  Country? @relation(fields: [guessedCountryId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
+  song          Song           @relation(fields: [songId], references: [id])
+  guessAttempts GuessAttempt[]
+
+  @@index([userId])
+  @@map("rounds")
+}
+
+model GuessAttempt {
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  roundId          String   @map("round_id")
+  songId           String   @map("song_id")
+  attemptNumber    Int      @map("attempt_number") // 1..6, maps to 5/10/15/20/25/30s
+  clipSeconds      Int      @map("clip_seconds")
+  guessedCountryId String?  @map("guessed_country_id")
+  correct          Boolean
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  user           User     @relation(fields: [userId], references: [id])
+  round          Round    @relation(fields: [roundId], references: [id])
+  song           Song     @relation(fields: [songId], references: [id])
+  guessedCountry Country? @relation(fields: [guessedCountryId], references: [id])
 
   @@index([userId])
   @@index([roundId])
