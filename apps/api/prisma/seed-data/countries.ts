@@ -171,6 +171,8 @@ export const countries: { isoCode: string; name: string; region: string; latitud
   { isoCode: 'SE', name: 'Sweden', region: 'Europe', latitude: 62, longitude: 15 },
   { isoCode: 'CH', name: 'Switzerland', region: 'Europe', latitude: 47, longitude: 8 },
   { isoCode: 'SY', name: 'Syria', region: 'Asia', latitude: 35, longitude: 38 },
+  // Not a UN member state, unlike the rest of this list — added as a deliberate exception for a curated song.
+  { isoCode: 'TW', name: 'Taiwan', region: 'Asia', latitude: 23.5, longitude: 121 },
   { isoCode: 'TJ', name: 'Tajikistan', region: 'Asia', latitude: 39, longitude: 71 },
   { isoCode: 'TZ', name: 'Tanzania', region: 'Africa', latitude: -6, longitude: 35 },
   { isoCode: 'TH', name: 'Thailand', region: 'Asia', latitude: 15, longitude: 100 },

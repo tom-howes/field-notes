@@ -32,6 +32,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig)
   SwaggerModule.setup('docs', app, document)
 
-  await app.listen(process.env.PORT ?? 3000)
+  // Explicit 0.0.0.0 rather than relying on the default host resolution — inside
+  // an Alpine container that default has been observed to bind loopback-only,
+  // which Docker's port publishing (arriving via the container's eth0, not
+  // loopback) can't reach.
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0')
 }
 bootstrap()

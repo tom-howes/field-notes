@@ -4,7 +4,7 @@ data "aws_ec2_managed_prefix_list" "cloudfront" {
 
 resource "aws_security_group" "alb" {
   name        = "${var.project_name}-alb"
-  description = "Allow inbound HTTP only from CloudFront (not the open internet) — CloudFront is what terminates HTTPS"
+  description = "Allow inbound HTTP only from CloudFront (not the open internet) - CloudFront is what terminates HTTPS"
   vpc_id      = aws_vpc.main.id
 
   ingress {
