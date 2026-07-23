@@ -1,0 +1,12 @@
+aws_region   = "us-east-1"
+project_name = "field-notes"
+
+db_name     = "field_notes"
+db_username = "field_notes"
+db_password = "changeme-generate-a-real-one"
+
+spotify_client_id     = ""
+spotify_client_secret = ""
+session_jwt_secret    = "generate-with-node--crypto-randomBytes-32--toString-hex"
+
+api_image_tag = "latest"
