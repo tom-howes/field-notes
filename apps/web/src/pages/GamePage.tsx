@@ -5,6 +5,8 @@ import type { GuessResponse, StartRoundResponse } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer'
 import { CountryPicker } from '../components/CountryPicker'
+import { WorldMap } from '../components/WorldMap'
+import type { GuessMarker } from '../components/WorldMap'
 
 export function GamePage() {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth()
@@ -19,6 +21,7 @@ export function GamePage() {
   const [result, setResult] = useState<GuessResponse | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
+  const [guesses, setGuesses] = useState<Record<string, GuessMarker>>({})
 
   if (authLoading) {
     return <div className="page">Loading...</div>
@@ -40,6 +43,7 @@ export function GamePage() {
   async function handleStartRound() {
     setIsBusy(true)
     setResult(null)
+    setGuesses({})
     try {
       const newRound = await api.startRound()
       setRound(newRound)
@@ -61,6 +65,7 @@ export function GamePage() {
     try {
       const res = await api.guess(round.roundId, countryId)
       setResult(res)
+      setGuesses((prev) => ({ ...prev, [countryId]: { distanceKm: res.distanceKm ?? 0, correct: res.correct } }))
       if (!res.roundComplete && res.attemptNumber && res.clipSeconds) {
         setRound({ ...round, attemptNumber: res.attemptNumber, clipSeconds: res.clipSeconds })
       }
@@ -94,9 +99,12 @@ export function GamePage() {
           >
             {isPlaying ? 'Playing...' : 'Play clip again'}
           </button>
+          <WorldMap countries={countries} guesses={guesses} onGuess={handleGuess} disabled={isBusy || isPlaying} />
           <CountryPicker countries={countries} onGuess={handleGuess} disabled={isBusy || isPlaying} />
           {result && !result.correct && (
-            <p className="feedback">Not quite — clip is extending, try again.</p>
+            <p className="feedback">
+              Not quite{result.distanceKm !== undefined ? ` — about ${result.distanceKm.toLocaleString()} km away` : ''} — clip is extending, try again.
+            </p>
           )}
         </div>
       )}
@@ -104,10 +112,24 @@ export function GamePage() {
       {result?.roundComplete && (
         <div className="round-panel">
           {result.correct ? (
-            <p className="feedback success">
-              Correct! It was {result.country?.name} ({result.attemptsTaken} attempt
-              {result.attemptsTaken === 1 ? '' : 's'}). Added to your collection.
-            </p>
+            <>
+              <p className="feedback success">
+                Congratulations! It was {result.country?.name} ({result.attemptsTaken} attempt
+                {result.attemptsTaken === 1 ? '' : 's'}). Added to your collection.
+              </p>
+              {result.song && (
+                <iframe
+                  className="spotify-embed"
+                  src={`https://open.spotify.com/embed/track/${result.song.spotifyTrackId}?utm_source=generator`}
+                  width="100%"
+                  height="152"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  title={`${result.song.title} by ${result.song.artistName} on Spotify`}
+                />
+              )}
+            </>
           ) : (
             <p className="feedback">Out of attempts — it was {result.country?.name}.</p>
           )}

@@ -53,10 +53,12 @@ export interface StartRoundResponse {
 export interface GuessResponse {
   correct: boolean
   roundComplete: boolean
+  distanceKm?: number
   attemptsTaken?: number
   attemptNumber?: number
   clipSeconds?: number
   country?: { id: string; name: string; isoCode: string }
+  song?: { title: string; artistName: string; spotifyTrackId: string; spotifyUrl: string }
 }
 
 export interface SpotifyTokenResponse {

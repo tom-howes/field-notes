@@ -8,4 +8,10 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5173,
   },
+  // react-simple-maps is an old CJS package that calls require('prop-types') internally;
+  // forcing it into Vite's dep pre-bundling converts that to a real ESM import instead of
+  // a runtime `require()` call the browser can't satisfy.
+  optimizeDeps: {
+    include: ['prop-types', 'react-simple-maps'],
+  },
 })
