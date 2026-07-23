@@ -72,6 +72,22 @@ export interface LeaderboardRow {
   rank: number
 }
 
+export interface CollectedCountry {
+  countryId: string
+  countryName: string
+  isoCode: string
+  songTitle: string
+  artistName: string
+  attemptsTaken: number
+  collectedAt: string
+}
+
+export interface CollectionResponse {
+  collectedCount: number
+  totalUnlockedCountries: number
+  collected: CollectedCountry[]
+}
+
 export const api = {
   me: () => request<CurrentUser>('/auth/me'),
   spotifyToken: () => request<SpotifyTokenResponse>('/auth/spotify/token'),
@@ -84,5 +100,6 @@ export const api = {
     }),
   leaderboard: () => request<LeaderboardRow[]>('/leaderboard'),
   myRank: () => request<LeaderboardRow>('/leaderboard/me'),
+  collection: () => request<CollectionResponse>('/collection'),
   loginUrl: () => `${API_BASE_URL}/auth/spotify/login`,
 }

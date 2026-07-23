@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module'
 import { CountriesModule } from './countries/countries.module'
 import { RoundsModule } from './rounds/rounds.module'
 import { LeaderboardModule } from './leaderboard/leaderboard.module'
+import { CollectionModule } from './collection/collection.module'
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module'
     CountriesModule,
     RoundsModule,
     LeaderboardModule,
+    CollectionModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
