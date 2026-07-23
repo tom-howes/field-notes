@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CountryStatus {
+  LOCKED
+  UNLOCKED
+}
+
+model Country {
+  id        String        @id @default(uuid())
+  isoCode   String        @unique @map("iso_code") // ISO 3166-1 alpha-2
+  name      String
+  region    String?
+  status    CountryStatus @default(LOCKED)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  songs           Song[]
+  userCollections UserCollection[]
+  guessAttempts   GuessAttempt[]
+
+  @@map("countries")
+}
+
+model Artist {
+  id          String  @id @default(uuid())
+  name        String
+  nationality String? // supplementary metadata only, not attribution source of truth
+
+  songs Song[]
+
+  @@map("artists")
+}
+
+model Song {
+  id             String   @id @default(uuid())
+  title          String
+  artistId       String   @map("artist_id")
+  countryId      String   @map("country_id") // recording location = ground truth
+  language       String?
+  releaseYear    Int?     @map("release_year")
+  spotifyTrackId String   @unique @map("spotify_track_id")
+  curatorNotes   String?  @map("curator_notes")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  artist          Artist           @relation(fields: [artistId], references: [id])
+  country         Country          @relation(fields: [countryId], references: [id])
+  guessAttempts   GuessAttempt[]
+  userCollections UserCollection[]
+
+  @@index([countryId])
+  @@index([artistId])
+  @@map("songs")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  spotifyUserId String   @unique @map("spotify_user_id")
+  displayName   String   @map("display_name")
+  email         String?
+  refreshToken  String?  @map("refresh_token")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  guessAttempts   GuessAttempt[]
+  userCollections UserCollection[]
+
+  @@map("users")
+}
+
+model GuessAttempt {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  roundId         String   @map("round_id") // groups attempts within one round at a song
+  songId          String   @map("song_id")
+  attemptNumber   Int      @map("attempt_number") // 1..6, maps to 5/10/15/20/25/30s
+  clipSeconds     Int      @map("clip_seconds")
+  guessedCountryId String? @map("guessed_country_id")
+  correct         Boolean
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user            User     @relation(fields: [userId], references: [id])
+  song            Song     @relation(fields: [songId], references: [id])
+  guessedCountry  Country? @relation(fields: [guessedCountryId], references: [id])
+
+  @@index([userId])
+  @@index([roundId])
+  @@map("guess_attempts")
+}
+
+model UserCollection {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  songId        String   @map("song_id")
+  countryId     String   @map("country_id")
+  attemptsTaken Int      @map("attempts_taken")
+  collectedAt   DateTime @default(now()) @map("collected_at")
+
+  user    User    @relation(fields: [userId], references: [id])
+  song    Song    @relation(fields: [songId], references: [id])
+  country Country @relation(fields: [countryId], references: [id])
+
+  @@unique([userId, countryId])
+  @@index([userId])
+  @@map("user_collections")
+}
