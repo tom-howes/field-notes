@@ -36,6 +36,17 @@ export class AuthController {
     return this.config.get('NODE_ENV') === 'production'
   }
 
+  // In production the frontend (S3/CloudFront) and API (ALB/CloudFront) are on
+  // different domains, so this is a genuinely cross-site request from the
+  // browser's point of view — SameSite=Lax cookies aren't sent on cross-site
+  // fetch/XHR calls (only top-level navigations), which is fine in local dev
+  // where both run on 127.0.0.1 (same site, different ports) but breaks every
+  // API call after login in production. None requires Secure, which we already
+  // set from NODE_ENV.
+  private cookieSameSite(): 'lax' | 'none' {
+    return this.isSecureCookies() ? 'none' : 'lax'
+  }
+
   @Get('spotify/login')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Start Spotify OAuth 2.0 authorization code + PKCE flow' })
@@ -89,7 +100,7 @@ export class AuthController {
     const sessionToken = this.authService.issueSessionToken(user.id)
     res.cookie('session', sessionToken, {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: this.cookieSameSite(),
       secure: this.isSecureCookies(),
       maxAge: SESSION_COOKIE_MAX_AGE_MS,
     })
