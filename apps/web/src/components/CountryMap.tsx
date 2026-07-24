@@ -36,7 +36,7 @@ export function CountryMap({ countries, getFill, getHoverFill, isClickable, onCo
           &minus;
         </button>
       </div>
-      <ComposableMap projection="geoMercator" projectionConfig={{ scale: 110 }}>
+      <ComposableMap projection="geoMercator" projectionConfig={{ scale: 110 }} width={800} height={420}>
         <ZoomableGroup
           center={position.coordinates}
           zoom={position.zoom}

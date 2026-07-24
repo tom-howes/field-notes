@@ -4,11 +4,11 @@ import './CountryPicker.css'
 
 interface Props {
   countries: Country[]
-  onGuess: (countryId: string) => void
+  onSelect: (countryId: string) => void
   disabled: boolean
 }
 
-export function CountryPicker({ countries, onGuess, disabled }: Props) {
+export function CountryPicker({ countries, onSelect, disabled }: Props) {
   const [query, setQuery] = useState('')
 
   const matches = useMemo(() => {
@@ -35,7 +35,7 @@ export function CountryPicker({ countries, onGuess, disabled }: Props) {
                 disabled={disabled}
                 onClick={() => {
                   setQuery('')
-                  onGuess(c.id)
+                  onSelect(c.id)
                 }}
               >
                 {c.name}

@@ -1,5 +1,6 @@
 import { CountryMap } from './CountryMap'
 import type { Country } from '../lib/api'
+import { CORRECT_COLOR, colorForDistance } from '../lib/distanceColor'
 
 export interface GuessMarker {
   distanceKm: number
@@ -9,38 +10,37 @@ export interface GuessMarker {
 interface WorldMapProps {
   countries: Country[]
   guesses: Record<string, GuessMarker> // keyed by countryId
-  onGuess: (countryId: string) => void
+  selectedCountryId: string | null
+  onSelect: (countryId: string) => void
   disabled: boolean
 }
 
 const UNGUESSED_FILL = '#3a3a3a'
 const HOVER_FILL = '#555'
-const CORRECT_FILL = '#1db954'
+const SELECTED_FILL = '#4a9eff'
 
-function fillForDistance(distanceKm: number): string {
-  if (distanceKm < 500) return '#2ecc71' // green
-  if (distanceKm < 2000) return '#f1c40f' // yellow
-  if (distanceKm < 5000) return '#e67e22' // orange
-  return '#e74c3c' // red
-}
-
-export function WorldMap({ countries, guesses, onGuess, disabled }: WorldMapProps) {
+export function WorldMap({ countries, guesses, selectedCountryId, onSelect, disabled }: WorldMapProps) {
   return (
     <>
       <CountryMap
         countries={countries}
         getFill={(countryId) => {
           const guess = countryId ? guesses[countryId] : undefined
-          return guess ? (guess.correct ? CORRECT_FILL : fillForDistance(guess.distanceKm)) : UNGUESSED_FILL
+          if (guess) return guess.correct ? CORRECT_COLOR : colorForDistance(guess.distanceKm)
+          if (countryId && countryId === selectedCountryId) return SELECTED_FILL
+          return UNGUESSED_FILL
         }}
         getHoverFill={(countryId, defaultFill) => {
           const guess = countryId ? guesses[countryId] : undefined
           return !disabled && countryId && !guess ? HOVER_FILL : defaultFill
         }}
         isClickable={(countryId) => !disabled && !guesses[countryId]}
-        onCountryClick={onGuess}
+        onCountryClick={onSelect}
       />
       <div className="world-map-legend">
+        <span>
+          <i style={{ background: SELECTED_FILL }} /> selected
+        </span>
         <span>
           <i style={{ background: '#2ecc71' }} /> &lt;500km
         </span>

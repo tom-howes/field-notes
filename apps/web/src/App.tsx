@@ -3,13 +3,16 @@ import { GamePage } from './pages/GamePage'
 import { CollectionPage } from './pages/CollectionPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { AuthCallbackPage } from './pages/AuthCallbackPage'
+import { Logo } from './components/Logo'
 import './App.css'
 
 function App() {
   return (
     <div className="app">
       <nav className="nav">
-        <span className="brand">Field Notes</span>
+        <span className="brand">
+          <Logo size={20} />
+        </span>
         <NavLink to="/" end>
           Play
         </NavLink>
