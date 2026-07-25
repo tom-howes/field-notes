@@ -134,7 +134,10 @@ model UserCollection {
   song    Song    @relation(fields: [songId], references: [id])
   country Country @relation(fields: [countryId], references: [id])
 
-  @@unique([userId, countryId])
+  // One row per song a player has collected — a country can have several rows
+  // once a player has found more than one of its songs.
+  @@unique([userId, songId])
   @@index([userId])
+  @@index([userId, countryId])
   @@map("user_collections")
 }

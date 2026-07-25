@@ -142,6 +142,9 @@ export const countries: { isoCode: string; name: string; region: string; latitud
   { isoCode: 'PH', name: 'Philippines', region: 'Asia', latitude: 13, longitude: 122 },
   { isoCode: 'PL', name: 'Poland', region: 'Europe', latitude: 52, longitude: 20 },
   { isoCode: 'PT', name: 'Portugal', region: 'Europe', latitude: 39.5, longitude: -8 },
+  // Not a UN member state (US territory), unlike the rest of this list — added as a deliberate
+  // exception because a curated song's attribution treats it as distinct from the United States.
+  { isoCode: 'PR', name: 'Puerto Rico', region: 'Americas', latitude: 18.25, longitude: -66.5 },
   { isoCode: 'QA', name: 'Qatar', region: 'Asia', latitude: 25.5, longitude: 51.25 },
   { isoCode: 'RO', name: 'Romania', region: 'Europe', latitude: 46, longitude: 25 },
   { isoCode: 'RU', name: 'Russia', region: 'Europe', latitude: 60, longitude: 100 },

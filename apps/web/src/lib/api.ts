@@ -74,18 +74,28 @@ export interface LeaderboardRow {
   rank: number
 }
 
-export interface CollectedCountry {
-  countryId: string
-  countryName: string
-  isoCode: string
-  songTitle: string
+export interface CollectedSong {
+  songId: string
+  title: string
   artistName: string
+  spotifyTrackId: string
+  spotifyUrl: string
   attemptsTaken: number
   collectedAt: string
 }
 
+export interface CollectedCountry {
+  countryId: string
+  countryName: string
+  isoCode: string
+  region: string | null
+  songs: CollectedSong[]
+}
+
 export interface CollectionResponse {
   collectedCount: number
+  songsCollectedCount: number
+  continentsCollectedCount: number
   totalUnlockedCountries: number
   collected: CollectedCountry[]
 }

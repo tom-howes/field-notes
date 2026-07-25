@@ -10,23 +10,24 @@ export class RoundsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async startRound(userId: string) {
-    const collectedCountryIds = (
+    const collectedSongIds = (
       await this.prisma.userCollection.findMany({
         where: { userId },
-        select: { countryId: true },
+        select: { songId: true },
       })
-    ).map((c) => c.countryId)
+    ).map((c) => c.songId)
 
-    // Prefer songs from countries the player hasn't collected yet, to drive toward full coverage.
+    // Prefer songs the player hasn't collected yet (whether or not they've already
+    // collected a different song from that same country), to drive toward full coverage.
     let candidates = await this.prisma.song.findMany({
       where: {
         country: { status: 'UNLOCKED' },
-        countryId: { notIn: collectedCountryIds },
+        id: { notIn: collectedSongIds },
       },
       select: { id: true, spotifyTrackId: true },
     })
 
-    // Once every unlocked country is collected, fall back to any unlocked-country song for replay.
+    // Once every unlocked song is collected, fall back to any unlocked-country song for replay.
     if (candidates.length === 0) {
       candidates = await this.prisma.song.findMany({
         where: { country: { status: 'UNLOCKED' } },
@@ -103,7 +104,7 @@ export class RoundsService {
           data: { status: 'WON', completedAt: new Date() },
         }),
         this.prisma.userCollection.upsert({
-          where: { userId_countryId: { userId, countryId: round.song.countryId } },
+          where: { userId_songId: { userId, songId: round.songId } },
           update: {},
           create: {
             userId,
