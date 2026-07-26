@@ -205,8 +205,13 @@ export function GamePage() {
 
           {result && !result.correct && (
             <p className="feedback">
-              Not quite{result.distanceKm !== undefined ? ` — about ${result.distanceKm.toLocaleString()} km away` : ''}. Clip
-              extended by 5s to {round.clipSeconds}s — click play to try again.
+              Not quite
+              {result.distanceKm === 0
+                ? ' — bordering the answer!'
+                : result.distanceKm !== undefined
+                  ? ` — about ${result.distanceKm.toLocaleString()} km away`
+                  : ''}
+              . Clip extended by 5s to {round.clipSeconds}s — click play to try again.
             </p>
           )}
 
@@ -242,7 +247,8 @@ export function GamePage() {
                   className="guess-chip"
                   style={{ borderColor: g.correct ? CORRECT_COLOR : colorForDistance(g.distanceKm) }}
                 >
-                  <strong>{g.isoCode}</strong> {g.correct ? 'Correct!' : `${g.distanceKm.toLocaleString()} km`}
+                  <strong>{g.isoCode}</strong>{' '}
+                  {g.correct ? 'Correct!' : g.distanceKm === 0 ? 'Bordering' : `${g.distanceKm.toLocaleString()} km`}
                 </span>
               ))}
             </div>
