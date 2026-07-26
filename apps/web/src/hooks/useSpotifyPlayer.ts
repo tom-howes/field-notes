@@ -83,5 +83,18 @@ export function useSpotifyPlayer(enabled: boolean) {
     }, clipSeconds * 1000)
   }
 
-  return { deviceId, error, playClip, isReady: deviceId !== null }
+  function pause() {
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current)
+    playerRef.current?.pause().catch(() => {})
+  }
+
+  function resume(remainingSeconds: number) {
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current)
+    playerRef.current?.resume().catch(() => {})
+    pauseTimeoutRef.current = setTimeout(() => {
+      playerRef.current?.pause().catch(() => {})
+    }, remainingSeconds * 1000)
+  }
+
+  return { deviceId, error, playClip, pause, resume, isReady: deviceId !== null }
 }

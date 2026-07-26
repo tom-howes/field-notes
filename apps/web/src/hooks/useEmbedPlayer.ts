@@ -98,5 +98,16 @@ export function useEmbedPlayer(enabled: boolean) {
     pauseTimeoutRef.current = setTimeout(() => controllerRef.current?.pause(), clipSeconds * 1000)
   }
 
-  return { error, playClip, isReady }
+  function pause() {
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current)
+    controllerRef.current?.pause()
+  }
+
+  function resume(remainingSeconds: number) {
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current)
+    controllerRef.current?.resume()
+    pauseTimeoutRef.current = setTimeout(() => controllerRef.current?.pause(), remainingSeconds * 1000)
+  }
+
+  return { error, playClip, pause, resume, isReady }
 }

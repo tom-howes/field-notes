@@ -18,6 +18,7 @@ declare global {
     connect(): Promise<boolean>
     disconnect(): void
     pause(): Promise<void>
+    resume(): Promise<void>
     addListener(event: 'ready' | 'not_ready', cb: (data: { device_id: string }) => void): void
     addListener(
       event: 'initialization_error' | 'authentication_error' | 'account_error' | 'playback_error',

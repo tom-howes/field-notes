@@ -27,7 +27,9 @@ export function GamePage() {
   const isPremium = user?.isPremium ?? false
   const premiumPlayer = useSpotifyPlayer(isAuthenticated && isPremium)
   const freePlayer = useEmbedPlayer(isAuthenticated && !isPremium)
-  const { error: playerError, playClip, isReady } = isPremium ? premiumPlayer : freePlayer
+  const { error: playerError, playClip, pause: pausePlayer, resume: resumePlayer, isReady } = isPremium
+    ? premiumPlayer
+    : freePlayer
   const { data: countries = [] } = useQuery({
     queryKey: ['countries'],
     queryFn: api.countries,
@@ -37,12 +39,15 @@ export function GamePage() {
   const [round, setRound] = useState<StartRoundResponse | null>(null)
   const [result, setResult] = useState<GuessResponse | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
   const [playProgress, setPlayProgress] = useState(0)
   const [isBusy, setIsBusy] = useState(false)
   const [guesses, setGuesses] = useState<Record<string, GuessMarker>>({})
   const [guessHistory, setGuessHistory] = useState<GuessHistoryEntry[]>([])
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null)
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const startedAtRef = useRef(0)
+  const elapsedMsRef = useRef(0)
 
   if (authLoading) {
     return <div className="page">Loading...</div>
@@ -82,23 +87,56 @@ export function GamePage() {
     }
   }
 
-  async function handlePlay(spotifyTrackId: string, clipSeconds: number) {
-    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current)
-
-    setIsPlaying(true)
-    setPlayProgress(0)
-    await playClip(spotifyTrackId, clipSeconds)
-
-    const startedAt = Date.now()
+  function startProgressTimer(clipSeconds: number) {
     const totalMs = clipSeconds * 1000
+    startedAtRef.current = Date.now() - elapsedMsRef.current
     progressIntervalRef.current = setInterval(() => {
-      const pct = Math.min(1, (Date.now() - startedAt) / totalMs)
+      const pct = Math.min(1, (Date.now() - startedAtRef.current) / totalMs)
       setPlayProgress(pct)
       if (pct >= 1) {
         if (progressIntervalRef.current) clearInterval(progressIntervalRef.current)
         setIsPlaying(false)
+        setIsPaused(false)
+        elapsedMsRef.current = 0
       }
     }, PROGRESS_TICK_MS)
+  }
+
+  async function handlePlay(spotifyTrackId: string, clipSeconds: number) {
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current)
+
+    elapsedMsRef.current = 0
+    setIsPaused(false)
+    setIsPlaying(true)
+    setPlayProgress(0)
+    await playClip(spotifyTrackId, clipSeconds)
+    startProgressTimer(clipSeconds)
+  }
+
+  function handlePause() {
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current)
+    elapsedMsRef.current = Date.now() - startedAtRef.current
+    pausePlayer()
+    setIsPlaying(false)
+    setIsPaused(true)
+  }
+
+  function handleResume(clipSeconds: number) {
+    const remainingSeconds = Math.max(0.1, clipSeconds - elapsedMsRef.current / 1000)
+    setIsPaused(false)
+    setIsPlaying(true)
+    resumePlayer(remainingSeconds)
+    startProgressTimer(clipSeconds)
+  }
+
+  function handleWaveformClick(spotifyTrackId: string, clipSeconds: number) {
+    if (isPlaying) {
+      handlePause()
+    } else if (isPaused) {
+      handleResume(clipSeconds)
+    } else {
+      handlePlay(spotifyTrackId, clipSeconds)
+    }
   }
 
   async function handleSubmitGuess() {
@@ -159,7 +197,7 @@ export function GamePage() {
             seed={round.roundId}
             progress={playProgress}
             isPlaying={isPlaying}
-            onPlayClick={() => handlePlay(round.spotifyTrackId, round.clipSeconds)}
+            onPlayClick={() => handleWaveformClick(round.spotifyTrackId, round.clipSeconds)}
             disabled={isBusy}
           />
 
@@ -168,11 +206,11 @@ export function GamePage() {
             guesses={guesses}
             selectedCountryId={selectedCountryId}
             onSelect={setSelectedCountryId}
-            disabled={isBusy || isPlaying}
+            disabled={isBusy}
           />
 
           <div className="guess-bar">
-            <CountryPicker countries={countries} onSelect={setSelectedCountryId} disabled={isBusy || isPlaying} />
+            <CountryPicker countries={countries} onSelect={setSelectedCountryId} disabled={isBusy} />
             <div className="guess-bar-selected">{selectedCountry ? selectedCountry.name : 'Select a country on the map or search'}</div>
             <button type="button" className="button-primary" onClick={handleSubmitGuess} disabled={isBusy || !selectedCountryId}>
               Submit Guess
