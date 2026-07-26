@@ -4,7 +4,7 @@ import { LeaderboardService } from './leaderboard.service'
 import { LeaderboardRowDto } from './dto/leaderboard-row.dto'
 import { StreakRowDto } from './dto/streak-row.dto'
 import { ContinentLeaderDto } from './dto/continent-leader.dto'
-import { CountryLeaderDto } from './dto/country-leader.dto'
+import { CountryLeaderboardDto } from './dto/country-leader.dto'
 import { SessionAuthGuard } from '../auth/session-auth.guard'
 import type { AuthenticatedRequest } from '../auth/session-auth.guard'
 
@@ -56,9 +56,9 @@ export class LeaderboardController {
   }
 
   @Get('countries')
-  @ApiOperation({ summary: 'The player with the fewest attempts for each unlocked country' })
-  @ApiOkResponse({ type: [CountryLeaderDto] })
-  getCountryLeaders(): Promise<CountryLeaderDto[]> {
-    return this.leaderboardService.getCountryLeaders()
+  @ApiOperation({ summary: 'Per-country leaderboards: every player who has collected there, ranked by songs collected then efficiency' })
+  @ApiOkResponse({ type: [CountryLeaderboardDto] })
+  getCountryLeaderboards(): Promise<CountryLeaderboardDto[]> {
+    return this.leaderboardService.getCountryLeaderboards()
   }
 }

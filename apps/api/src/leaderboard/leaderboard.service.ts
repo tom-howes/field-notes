@@ -23,14 +23,21 @@ export interface ContinentLeaderRow {
   countriesInRegion: number
 }
 
-export interface CountryLeaderRow {
+export interface CountryUserStat {
+  userId: string
+  displayName: string
+  songsCollected: number
+  avgAttempts: number
+  rank: number
+}
+
+export interface CountryLeaderboardRow {
   countryId: string
   countryName: string
   isoCode: string
   region: string | null
-  leaderDisplayName: string
-  attemptsTaken: number
-  songCount: number
+  totalSongs: number
+  leaders: CountryUserStat[]
 }
 
 const MIN_COUNTRIES_FOR_EFFICIENCY_RANKING = 3
@@ -191,52 +198,76 @@ export class LeaderboardService {
     }))
   }
 
-  /** The player with the fewest attempts for each unlocked country (a per-country "best guess" board). */
-  async getCountryLeaders(): Promise<CountryLeaderRow[]> {
+  /** For each unlocked country, every player who has collected at least one song there, ranked by
+   *  songs collected (more = better) then guess efficiency (fewer attempts = better). */
+  async getCountryLeaderboards(): Promise<CountryLeaderboardRow[]> {
     const rows = await this.prisma.$queryRaw<
       {
         country_id: string
         country_name: string
         iso_code: string
         region: string | null
+        user_id: string
         display_name: string
-        attempts_taken: number
-        song_count: number
+        songs_collected: number
+        avg_attempts: number
+        country_rank: number
+        total_songs: number
       }[]
     >(Prisma.sql`
-      WITH per_country AS (
+      WITH user_country_stats AS (
         SELECT
           c.id AS country_id,
           c.name AS country_name,
           c.iso_code,
           c.region,
+          u.id AS user_id,
           u.display_name,
-          uc.attempts_taken,
-          RANK() OVER (PARTITION BY c.id ORDER BY uc.attempts_taken ASC, uc.collected_at ASC) AS country_rank
+          COUNT(uc.id)::int AS songs_collected,
+          ROUND(AVG(uc.attempts_taken)::numeric, 2)::float8 AS avg_attempts,
+          RANK() OVER (
+            PARTITION BY c.id ORDER BY COUNT(uc.id) DESC, AVG(uc.attempts_taken) ASC
+          )::int AS country_rank
         FROM user_collections uc
         JOIN countries c ON c.id = uc.country_id
         JOIN users u ON u.id = uc.user_id
+        GROUP BY c.id, c.name, c.iso_code, c.region, u.id, u.display_name
       ),
       song_counts AS (
         SELECT country_id, COUNT(*)::int AS song_count
         FROM songs
         GROUP BY country_id
       )
-      SELECT pc.country_id, pc.country_name, pc.iso_code, pc.region, pc.display_name, pc.attempts_taken, sc.song_count
-      FROM per_country pc
-      JOIN song_counts sc ON sc.country_id = pc.country_id
-      WHERE pc.country_rank = 1
-      ORDER BY pc.country_name ASC
+      SELECT ucs.country_id, ucs.country_name, ucs.iso_code, ucs.region, ucs.user_id, ucs.display_name,
+        ucs.songs_collected, ucs.avg_attempts, ucs.country_rank, sc.song_count AS total_songs
+      FROM user_country_stats ucs
+      JOIN song_counts sc ON sc.country_id = ucs.country_id
+      ORDER BY ucs.country_name ASC, ucs.country_rank ASC
     `)
 
-    return rows.map((r) => ({
-      countryId: r.country_id,
-      countryName: r.country_name,
-      isoCode: r.iso_code,
-      region: r.region,
-      leaderDisplayName: r.display_name,
-      attemptsTaken: r.attempts_taken,
-      songCount: r.song_count,
-    }))
+    const byCountry = new Map<string, CountryLeaderboardRow>()
+    for (const r of rows) {
+      let country = byCountry.get(r.country_id)
+      if (!country) {
+        country = {
+          countryId: r.country_id,
+          countryName: r.country_name,
+          isoCode: r.iso_code,
+          region: r.region,
+          totalSongs: r.total_songs,
+          leaders: [],
+        }
+        byCountry.set(r.country_id, country)
+      }
+      country.leaders.push({
+        userId: r.user_id,
+        displayName: r.display_name,
+        songsCollected: r.songs_collected,
+        avgAttempts: r.avg_attempts,
+        rank: r.country_rank,
+      })
+    }
+
+    return Array.from(byCountry.values())
   }
 }

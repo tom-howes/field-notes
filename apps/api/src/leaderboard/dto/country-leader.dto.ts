@@ -1,6 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger'
 
-export class CountryLeaderDto {
+export class CountryUserStatDto {
+  @ApiProperty()
+  userId!: string
+
+  @ApiProperty()
+  displayName!: string
+
+  @ApiProperty({ description: 'Songs this player has collected for this country' })
+  songsCollected!: number
+
+  @ApiProperty({ description: "This player's average attempts per song collected here" })
+  avgAttempts!: number
+
+  @ApiProperty({ description: 'Rank within this country (1 = most songs, ties broken by efficiency)' })
+  rank!: number
+}
+
+export class CountryLeaderboardDto {
   @ApiProperty()
   countryId!: string
 
@@ -13,12 +30,9 @@ export class CountryLeaderDto {
   @ApiProperty({ nullable: true })
   region!: string | null
 
-  @ApiProperty()
-  leaderDisplayName!: string
-
-  @ApiProperty({ description: "The leader's attempts taken for this country's best-collected song" })
-  attemptsTaken!: number
-
   @ApiProperty({ description: 'Total curated songs available for this country' })
-  songCount!: number
+  totalSongs!: number
+
+  @ApiProperty({ type: [CountryUserStatDto] })
+  leaders!: CountryUserStatDto[]
 }

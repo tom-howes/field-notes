@@ -15,9 +15,19 @@ const TABS: { id: Tab; label: string }[] = [
 ]
 
 export function LeaderboardPage() {
-  const { isAuthenticated } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [tab, setTab] = useState<Tab>('overall')
   const [selectedContinent, setSelectedContinent] = useState<string | null>(null)
+  const [expandedCountryIds, setExpandedCountryIds] = useState<Set<string>>(new Set())
+
+  function toggleExpanded(countryId: string) {
+    setExpandedCountryIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(countryId)) next.delete(countryId)
+      else next.add(countryId)
+      return next
+    })
+  }
 
   const { data: top, isLoading: topLoading } = useQuery({
     queryKey: ['leaderboard'],
@@ -234,22 +244,58 @@ export function LeaderboardPage() {
           {countries && countries.length === 0 && <p>No countries collected yet.</p>}
           {countries && countries.length > 0 && (
             <div className="collection-accordion">
-              {filteredCountries.map((c) => (
-                <div key={c.countryId} className="collection-country-card">
-                  <div className="collection-country-header">
-                    <img
-                      className="collection-country-flag"
-                      src={`https://flagcdn.com/h40/${c.isoCode.toLowerCase()}.png`}
-                      alt={`Flag of ${c.countryName}`}
-                    />
-                    <span className="collection-country-name">{c.countryName}</span>
-                    <span className="collection-country-meta">
-                      {c.songCount} song{c.songCount === 1 ? '' : 's'} &middot; {c.leaderDisplayName} &middot;{' '}
-                      {c.attemptsTaken} attempt{c.attemptsTaken === 1 ? '' : 's'}
-                    </span>
+              {filteredCountries.map((c) => {
+                const expanded = expandedCountryIds.has(c.countryId)
+                const myStat = c.leaders.find((l) => l.userId === user?.id)
+                return (
+                  <div key={c.countryId} className="collection-country-card">
+                    <button
+                      type="button"
+                      className="collection-country-header"
+                      onClick={() => toggleExpanded(c.countryId)}
+                    >
+                      <img
+                        className="collection-country-flag"
+                        src={`https://flagcdn.com/h40/${c.isoCode.toLowerCase()}.png`}
+                        alt={`Flag of ${c.countryName}`}
+                      />
+                      <span className="collection-country-name">{c.countryName}</span>
+                      <span className="collection-country-meta">
+                        {c.totalSongs} song{c.totalSongs === 1 ? '' : 's'} available &middot; {c.leaders.length} player
+                        {c.leaders.length === 1 ? '' : 's'}
+                      </span>
+                      <span className="collection-chevron">{expanded ? '▲' : '▼'}</span>
+                    </button>
+                    {expanded && (
+                      <div className="collection-song-list">
+                        <table className="leaderboard-table">
+                          <thead>
+                            <tr>
+                              <th>Rank</th>
+                              <th>Player</th>
+                              <th>Songs</th>
+                              <th>Avg attempts</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {c.leaders.map((l) => (
+                              <tr key={l.userId} className={l.userId === user?.id ? 'leaderboard-row-mine' : ''}>
+                                <td>{l.rank}</td>
+                                <td>{l.displayName}</td>
+                                <td>{l.songsCollected}</td>
+                                <td>{l.avgAttempts}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {isAuthenticated && !myStat && (
+                          <p className="fine-print">You haven&apos;t collected any songs from here yet.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </>

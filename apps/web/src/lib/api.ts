@@ -88,14 +88,21 @@ export interface ContinentLeader {
   countriesInRegion: number
 }
 
-export interface CountryLeader {
+export interface CountryUserStat {
+  userId: string
+  displayName: string
+  songsCollected: number
+  avgAttempts: number
+  rank: number
+}
+
+export interface CountryLeaderboard {
   countryId: string
   countryName: string
   isoCode: string
   region: string | null
-  leaderDisplayName: string
-  attemptsTaken: number
-  songCount: number
+  totalSongs: number
+  leaders: CountryUserStat[]
 }
 
 export interface CollectedSong {
@@ -139,7 +146,7 @@ export const api = {
   leaderboardEfficiency: () => request<LeaderboardRow[]>('/leaderboard/efficiency'),
   leaderboardStreaks: () => request<StreakRow[]>('/leaderboard/streaks'),
   leaderboardContinents: () => request<ContinentLeader[]>('/leaderboard/continents'),
-  leaderboardCountries: () => request<CountryLeader[]>('/leaderboard/countries'),
+  leaderboardCountries: () => request<CountryLeaderboard[]>('/leaderboard/countries'),
   collection: () => request<CollectionResponse>('/collection'),
   logout: () => request<void>('/auth/logout', { method: 'POST' }),
   loginUrl: () => `${API_BASE_URL}/auth/spotify/login`,
