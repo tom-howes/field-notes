@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { haversineDistanceKm } from './distance.util'
+import { borderDistanceKm } from './distance.util'
 
 const MAX_ATTEMPTS = 6 // 5, 10, 15, 20, 25, 30 seconds
 const CLIP_SECONDS_STEP = 5
@@ -79,10 +79,10 @@ export class RoundsService {
       : await (async () => {
           const guessedCountry = await this.prisma.country.findUnique({
             where: { id: guessedCountryId },
-            select: { latitude: true, longitude: true },
+            select: { isoCode: true, latitude: true, longitude: true },
           })
           if (!guessedCountry) throw new BadRequestException('Unknown country')
-          return haversineDistanceKm(guessedCountry, round.song.country)
+          return borderDistanceKm(guessedCountry, round.song.country)
         })()
 
     await this.prisma.guessAttempt.create({
