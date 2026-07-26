@@ -139,6 +139,15 @@ export function GamePage() {
     }
   }
 
+  function resetPlaybackState() {
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current)
+    pausePlayer()
+    elapsedMsRef.current = 0
+    setPlayProgress(0)
+    setIsPlaying(false)
+    setIsPaused(false)
+  }
+
   async function handleSubmitGuess() {
     if (!round || !selectedCountryId) return
     const countryId = selectedCountryId
@@ -157,6 +166,7 @@ export function GamePage() {
       }
       if (!res.roundComplete && res.attemptNumber && res.clipSeconds) {
         setRound({ ...round, attemptNumber: res.attemptNumber, clipSeconds: res.clipSeconds })
+        resetPlaybackState()
       }
     } finally {
       setIsBusy(false)
@@ -192,6 +202,13 @@ export function GamePage() {
             </span>
             <span className="round-status-muted">{round.clipSeconds}s clip</span>
           </div>
+
+          {result && !result.correct && (
+            <p className="feedback">
+              Not quite{result.distanceKm !== undefined ? ` — about ${result.distanceKm.toLocaleString()} km away` : ''}. Clip
+              extended by 5s to {round.clipSeconds}s — click play to try again.
+            </p>
+          )}
 
           <Waveform
             seed={round.roundId}
@@ -229,12 +246,6 @@ export function GamePage() {
                 </span>
               ))}
             </div>
-          )}
-
-          {result && !result.correct && (
-            <p className="feedback">
-              Not quite{result.distanceKm !== undefined ? ` — about ${result.distanceKm.toLocaleString()} km away` : ''} — clip is extending, try again.
-            </p>
           )}
         </div>
       )}
