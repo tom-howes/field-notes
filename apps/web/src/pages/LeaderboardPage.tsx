@@ -261,8 +261,7 @@ export function LeaderboardPage() {
                       />
                       <span className="collection-country-name">{c.countryName}</span>
                       <span className="collection-country-meta">
-                        {c.totalSongs} song{c.totalSongs === 1 ? '' : 's'} available &middot; {c.leaders.length} player
-                        {c.leaders.length === 1 ? '' : 's'}
+                        {c.leaders.length} player{c.leaders.length === 1 ? '' : 's'}
                       </span>
                       <span className="collection-chevron">{expanded ? '▲' : '▼'}</span>
                     </button>
