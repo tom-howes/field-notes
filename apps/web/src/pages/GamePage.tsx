@@ -4,6 +4,7 @@ import { api } from '../lib/api'
 import type { GuessResponse, StartRoundResponse } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer'
+import { useEmbedPlayer } from '../hooks/useEmbedPlayer'
 import { CountryPicker } from '../components/CountryPicker'
 import { WorldMap } from '../components/WorldMap'
 import type { GuessMarker } from '../components/WorldMap'
@@ -23,7 +24,10 @@ interface GuessHistoryEntry {
 
 export function GamePage() {
   const { user, isLoading: authLoading, isAuthenticated } = useAuth()
-  const { error: playerError, playClip, isReady } = useSpotifyPlayer(isAuthenticated)
+  const isPremium = user?.isPremium ?? false
+  const premiumPlayer = useSpotifyPlayer(isAuthenticated && isPremium)
+  const freePlayer = useEmbedPlayer(isAuthenticated && !isPremium)
+  const { error: playerError, playClip, isReady } = isPremium ? premiumPlayer : freePlayer
   const { data: countries = [] } = useQuery({
     queryKey: ['countries'],
     queryFn: api.countries,
@@ -57,7 +61,7 @@ export function GamePage() {
           <a className="spotify-login-button" href={api.loginUrl()}>
             Sign in with Spotify
           </a>
-          <p className="fine-print">Requires Spotify Premium to play clips.</p>
+          <span className="premium-note">Works with any Spotify account &mdash; better experience with Premium</span>
         </div>
       </div>
     )

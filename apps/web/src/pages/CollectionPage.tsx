@@ -127,7 +127,11 @@ export function CollectionPage() {
                         className="collection-country-header"
                         onClick={() => toggleExpanded(c.countryId)}
                       >
-                        <span className="collection-country-badge">{c.isoCode}</span>
+                        <img
+                          className="collection-country-flag"
+                          src={`https://flagcdn.com/h40/${c.isoCode.toLowerCase()}.png`}
+                          alt={`Flag of ${c.countryName}`}
+                        />
                         <span className="collection-country-name">{c.countryName}</span>
                         <span className="collection-country-meta">
                           {c.songs.length} song{c.songs.length === 1 ? '' : 's'}

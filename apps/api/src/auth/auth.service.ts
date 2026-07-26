@@ -21,6 +21,7 @@ interface SpotifyProfile {
   id: string
   display_name: string | null
   email: string | null
+  product: string // "premium" | "free" | "open" — determines which playback engine the client uses
 }
 
 interface SessionPayload {
@@ -119,6 +120,7 @@ export class AuthService {
       update: {
         displayName: profile.display_name ?? profile.id,
         email: profile.email,
+        spotifyProduct: profile.product,
         accessToken: tokens.access_token,
         accessTokenExpiresAt,
         ...(tokens.refresh_token ? { refreshToken: tokens.refresh_token } : {}),
@@ -127,6 +129,7 @@ export class AuthService {
         spotifyUserId: profile.id,
         displayName: profile.display_name ?? profile.id,
         email: profile.email,
+        spotifyProduct: profile.product,
         accessToken: tokens.access_token,
         accessTokenExpiresAt,
         refreshToken: tokens.refresh_token,

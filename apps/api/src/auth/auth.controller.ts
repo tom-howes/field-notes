@@ -123,7 +123,12 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'No valid session cookie' })
   async me(@Req() req: AuthenticatedRequest): Promise<CurrentUserDto> {
     const user = await this.prisma.user.findUniqueOrThrow({ where: { id: req.userId } })
-    return { id: user.id, displayName: user.displayName, email: user.email }
+    return {
+      id: user.id,
+      displayName: user.displayName,
+      email: user.email,
+      isPremium: user.spotifyProduct === 'premium',
+    }
   }
 
   @Get('spotify/token')

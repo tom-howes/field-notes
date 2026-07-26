@@ -40,6 +40,7 @@ export interface CurrentUser {
   id: string
   displayName: string
   email: string | null
+  isPremium: boolean
 }
 
 export interface StartRoundResponse {
@@ -72,6 +73,28 @@ export interface LeaderboardRow {
   countriesCollected: number
   avgAttempts: number | null
   rank: number
+}
+
+export interface StreakRow {
+  userId: string
+  displayName: string
+  currentStreak: number
+  rank: number
+}
+
+export interface ContinentLeader {
+  region: string
+  leaderDisplayName: string
+  countriesInRegion: number
+}
+
+export interface CountryLeader {
+  countryId: string
+  countryName: string
+  isoCode: string
+  region: string | null
+  leaderDisplayName: string
+  attemptsTaken: number
 }
 
 export interface CollectedSong {
@@ -112,6 +135,11 @@ export const api = {
     }),
   leaderboard: () => request<LeaderboardRow[]>('/leaderboard'),
   myRank: () => request<LeaderboardRow>('/leaderboard/me'),
+  leaderboardEfficiency: () => request<LeaderboardRow[]>('/leaderboard/efficiency'),
+  leaderboardStreaks: () => request<StreakRow[]>('/leaderboard/streaks'),
+  leaderboardContinents: () => request<ContinentLeader[]>('/leaderboard/continents'),
+  leaderboardCountries: () => request<CountryLeader[]>('/leaderboard/countries'),
   collection: () => request<CollectionResponse>('/collection'),
+  logout: () => request<void>('/auth/logout', { method: 'POST' }),
   loginUrl: () => `${API_BASE_URL}/auth/spotify/login`,
 }

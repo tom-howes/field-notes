@@ -4,9 +4,18 @@ import { CollectionPage } from './pages/CollectionPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import { Logo } from './components/Logo'
+import { useAuth } from './hooks/useAuth'
+import { api } from './lib/api'
 import './App.css'
 
 function App() {
+  const { isAuthenticated } = useAuth()
+
+  async function handleSignOut() {
+    await api.logout()
+    window.location.href = '/'
+  }
+
   return (
     <div className="app">
       <nav className="nav">
@@ -18,6 +27,11 @@ function App() {
         </NavLink>
         <NavLink to="/collection">Collection</NavLink>
         <NavLink to="/leaderboard">Leaderboard</NavLink>
+        {isAuthenticated && (
+          <button type="button" className="nav-signout" onClick={handleSignOut}>
+            Sign out
+          </button>
+        )}
       </nav>
       <main>
         <Routes>
