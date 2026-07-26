@@ -1,8 +1,12 @@
 // Curated songs. Each unlocks its country. Country attribution is recording
 // location (the project's chosen ground truth), not artist nationality —
 // several of these are deliberately diaspora/expat artists where those differ.
-// A couple (Tito Puente's "Oye Como Va") are deliberate exceptions where the
-// curator chose artist heritage over recording location.
+// A few are deliberate exceptions where the curator chose artist heritage
+// over recording location: Tito Puente's "Oye Como Va" (Puerto Rico), The
+// Scorpios' "Mashena: We Went" (Sudan, despite being recorded at Abbey Road
+// in London), Mayra Andrade's "Afeto" (Cape Verde, despite the "Manga" album
+// being recorded in Paris/Abidjan), and Bebe Manga's "Lokognolo" (Cameroon,
+// despite "Ami-Oyomiya" being recorded in Paris).
 export const songs: { title: string; artist: string; isoCode: string; spotifyTrackId: string }[] = [
   { title: "Don't Know What's Normal", artist: 'Shintaro Sakamoto', isoCode: 'JP', spotifyTrackId: '6nF10SdhHFoplBPcynWYcI' },
   { title: 'Ayonha', artist: 'Hamid Al Shaeri', isoCode: 'EG', spotifyTrackId: '7j3758mGOPLkd7UQsmbWYg' },
@@ -54,4 +58,26 @@ export const songs: { title: string; artist: string; isoCode: string; spotifyTra
   { title: 'Mambo No 5', artist: 'Pérez Prado', isoCode: 'CU', spotifyTrackId: '6fJnlY8rYqC37J2u2OeEMf' },
   { title: 'Pachuco Bailarín', artist: 'Ramon Marquez', isoCode: 'MX', spotifyTrackId: '3exgmEwgSaqw6K1gez1wTM' },
   { title: 'Oye Cómo Va', artist: 'Tito Puente', isoCode: 'PR', spotifyTrackId: '73uEbChpBB29ttwVnwuNVE' },
+  { title: 'Sadeness', artist: 'Enigma', isoCode: 'ES', spotifyTrackId: '1POdxGN4pDCh9enCeR6Rae' },
+  { title: "Histoire d'1 soir - Bye bye les galères", artist: 'Bibi Flash', isoCode: 'FR', spotifyTrackId: '03QgO3lV2SxLD2rrdetFHt' },
+  { title: "Autopsie d'un complot", artist: 'Ahmed Malek', isoCode: 'DZ', spotifyTrackId: '0nJPzwRclRWEniqHGQxdUv' },
+  { title: 'Mudzimu Ndiringe', artist: 'Hallelujah Chicken Run Band', isoCode: 'ZW', spotifyTrackId: '4lngVAMhWO9OhbAv5AHocG' },
+  { title: 'Mashena: We Went', artist: 'The Scorpios', isoCode: 'SD', spotifyTrackId: '7t10EPIERFazJEhHFjE0C8' },
+  { title: 'Alalaké', artist: 'Bembeya Jazz National', isoCode: 'GN', spotifyTrackId: '6b5s2fQ7iVf41x3FI88fcz' },
+  { title: 'Ansumana', artist: 'Susso', isoCode: 'GM', spotifyTrackId: '0uqakDnNhgHf7WFj4wqpM3' },
+  { title: 'Ya Bismillah', artist: 'Mamman Sani', isoCode: 'NE', spotifyTrackId: '1zFU01tSdPAgBTXGbkzfrc' },
+  { title: 'Coq a counula', artist: 'Erick Cosaque', isoCode: 'GP', spotifyTrackId: '0Q1bHQqoS5vVxDUIkgSroI' },
+  { title: 'Lokognolo', artist: 'Bebe Manga', isoCode: 'CM', spotifyTrackId: '1kGgfMfE884VVKc1q4sa4t' },
+  { title: 'Morning', artist: 'Azymuth', isoCode: 'BR', spotifyTrackId: '6Pr8fOfppj8C6qpkAYDDzE' },
+  { title: 'Afeto', artist: 'Mayra Andrade', isoCode: 'CV', spotifyTrackId: '6Y9ajxGefBUK9pMbT0C8gv' },
+  { title: 'A Buena Vista', artist: 'Soneros De Verdad', isoCode: 'CU', spotifyTrackId: '4stihUnPsFTrG7IOmtFZWj' },
+  { title: 'Oriente', artist: 'Asere', isoCode: 'CU', spotifyTrackId: '4GeGB90DoeY5CWpVQyGymM' },
+  { title: 'Patria Querida', artist: 'Los Guaracheros De Oriente', isoCode: 'CU', spotifyTrackId: '6hGfBBs2yvBcMbfTMsARGx' },
+  { title: 'Me siento loco', artist: 'Los Yetis', isoCode: 'CO', spotifyTrackId: '2VrEC8COwvsWqIRe7slj41' },
+  { title: 'Ya Se Ha Muerto Mi Abuelo', artist: 'Juaneco Y Su Combo', isoCode: 'PE', spotifyTrackId: '01coR52VHa06J1DnMkls29' },
+  { title: 'Tiene Sabor (feat. Omara Portuondo)', artist: 'Buena Vista Social Club, Omara Portuondo', isoCode: 'CU', spotifyTrackId: '659r0xM5pXvb5sUQG3Yl28' },
+  { title: 'La Colegiala', artist: 'Rodolfo y su Típica RA7', isoCode: 'CO', spotifyTrackId: '5XyfJqyQbBXiZtG98a8RBY' },
+  { title: 'Silbando', artist: 'Los Ribereños', isoCode: 'PE', spotifyTrackId: '6sZi6zDRc7YaUf3WsmwDN7' },
+  { title: 'Lobos al Escape', artist: 'Los Orientales de Paramonga', isoCode: 'PE', spotifyTrackId: '2UMTGUu66hP2dW3rvQJIgL' },
+  { title: 'Ni Piedra Ni Madera', artist: 'Internacional Carro Show', isoCode: 'MX', spotifyTrackId: '72J3e5bqMBOX4jdaT1vsUj' },
 ]

@@ -69,6 +69,7 @@ export const countries: { isoCode: string; name: string; region: string; latitud
   { isoCode: 'GH', name: 'Ghana', region: 'Africa', latitude: 8, longitude: -2 },
   { isoCode: 'GR', name: 'Greece', region: 'Europe', latitude: 39, longitude: 22 },
   { isoCode: 'GD', name: 'Grenada', region: 'Americas', latitude: 12.11666666, longitude: -61.66666666 },
+  { isoCode: 'GP', name: 'Guadeloupe', region: 'Americas', latitude: 16.25, longitude: -61.55 },
   { isoCode: 'GT', name: 'Guatemala', region: 'Americas', latitude: 15.5, longitude: -90.25 },
   { isoCode: 'GN', name: 'Guinea', region: 'Africa', latitude: 11, longitude: -10 },
   { isoCode: 'GW', name: 'Guinea-Bissau', region: 'Africa', latitude: 12, longitude: -15 },
