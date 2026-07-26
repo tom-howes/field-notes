@@ -1,8 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { api } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import { CollectionMap } from '../components/CollectionMap'
+
+const WORLD_FOCUS: { center: [number, number]; zoom: number } = { center: [0, 0], zoom: 1 }
+
+const REGION_FOCUS: Record<string, { center: [number, number]; zoom: number }> = {
+  Africa: { center: [20, 3], zoom: 2.2 },
+  Americas: { center: [-75, 10], zoom: 1.5 },
+  Asia: { center: [90, 30], zoom: 1.8 },
+  Europe: { center: [15, 52], zoom: 2.6 },
+  Oceania: { center: [140, -25], zoom: 2.2 },
+}
 
 export function CollectionPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
@@ -19,6 +29,12 @@ export function CollectionPage() {
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null)
   const [selectedContinent, setSelectedContinent] = useState<string | null>(null)
   const [expandedCountryIds, setExpandedCountryIds] = useState<Set<string>>(new Set())
+  const accordionRef = useRef<HTMLDivElement | null>(null)
+
+  function selectContinent(region: string | null) {
+    setSelectedContinent(region)
+    accordionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const continents = useMemo(
     () => Array.from(new Set(countries.map((c) => c.region).filter((r): r is string => !!r))).sort(),
@@ -52,6 +68,7 @@ export function CollectionPage() {
 
   const filteredCollected = data?.collected.filter((c) => !selectedContinent || c.region === selectedContinent) ?? []
   const coveragePct = data && data.totalUnlockedCountries > 0 ? (data.collectedCount / data.totalUnlockedCountries) * 100 : 0
+  const mapFocus = (selectedContinent && REGION_FOCUS[selectedContinent]) || WORLD_FOCUS
 
   return (
     <div className="page">
@@ -90,7 +107,7 @@ export function CollectionPage() {
             <button
               type="button"
               className={selectedContinent === null ? 'continent-filter active' : 'continent-filter'}
-              onClick={() => setSelectedContinent(null)}
+              onClick={() => selectContinent(null)}
             >
               All
             </button>
@@ -99,7 +116,7 @@ export function CollectionPage() {
                 type="button"
                 key={region}
                 className={selectedContinent === region ? 'continent-filter active' : 'continent-filter'}
-                onClick={() => setSelectedContinent(region)}
+                onClick={() => selectContinent(region)}
               >
                 {region}
               </button>
@@ -115,9 +132,11 @@ export function CollectionPage() {
                 collected={data.collected}
                 selectedCountryId={selectedCountryId}
                 onSelect={handleMapSelect}
+                focusCenter={mapFocus.center}
+                focusZoom={mapFocus.zoom}
               />
 
-              <div className="collection-accordion">
+              <div className="collection-accordion" ref={accordionRef}>
                 {filteredCollected.map((c) => {
                   const expanded = expandedCountryIds.has(c.countryId)
                   return (

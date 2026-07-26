@@ -6,6 +6,8 @@ interface CollectionMapProps {
   collected: CollectedCountry[]
   selectedCountryId: string | null
   onSelect: (countryId: string) => void
+  focusCenter?: [number, number]
+  focusZoom?: number
 }
 
 const COLLECTED_FILL = '#1db954'
@@ -15,7 +17,7 @@ const SELECTED_FILL = '#5ee08a'
 const NOT_COLLECTED_FILL = '#3a3a3a'
 const HOVER_FILL = '#2ecc71'
 
-export function CollectionMap({ countries, collected, selectedCountryId, onSelect }: CollectionMapProps) {
+export function CollectionMap({ countries, collected, selectedCountryId, onSelect, focusCenter, focusZoom }: CollectionMapProps) {
   const collectedIds = new Set(collected.map((c) => c.countryId))
 
   return (
@@ -30,6 +32,8 @@ export function CollectionMap({ countries, collected, selectedCountryId, onSelec
         getHoverFill={(countryId, defaultFill) => (countryId && collectedIds.has(countryId) ? HOVER_FILL : defaultFill)}
         isClickable={(countryId) => collectedIds.has(countryId)}
         onCountryClick={onSelect}
+        focusCenter={focusCenter}
+        focusZoom={focusZoom}
       />
       <div className="world-map-legend">
         <span>

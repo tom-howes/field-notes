@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps'
 import { isoNumericToAlpha2 } from '../lib/isoNumericToAlpha2'
 import type { Country } from '../lib/api'
@@ -13,14 +13,31 @@ export interface CountryMapProps {
   getHoverFill?: (countryId: string | undefined, defaultFill: string) => string
   isClickable?: (countryId: string) => boolean
   onCountryClick?: (countryId: string) => void
+  /** Externally driven re-center/zoom (e.g. a continent filter) — set both to
+   *  change the view; omit to leave the user's own pan/zoom alone. */
+  focusCenter?: [number, number]
+  focusZoom?: number
 }
 
-export function CountryMap({ countries, getFill, getHoverFill, isClickable, onCountryClick }: CountryMapProps) {
+export function CountryMap({
+  countries,
+  getFill,
+  getHoverFill,
+  isClickable,
+  onCountryClick,
+  focusCenter,
+  focusZoom,
+}: CountryMapProps) {
   const countryIdByIsoCode = new Map(countries.map((c) => [c.isoCode, c.id]))
   const [position, setPosition] = useState<{ coordinates: [number, number]; zoom: number }>({
     coordinates: [0, 0],
     zoom: 1,
   })
+
+  useEffect(() => {
+    if (!focusCenter || focusZoom === undefined) return
+    setPosition({ coordinates: focusCenter, zoom: focusZoom })
+  }, [focusCenter?.[0], focusCenter?.[1], focusZoom])
 
   function zoomBy(factor: number) {
     setPosition((prev) => ({ ...prev, zoom: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, prev.zoom * factor)) }))
