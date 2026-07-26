@@ -60,6 +60,7 @@ export function GamePage() {
           <h1>
             <Logo size={22} />
           </h1>
+          <p className="fine-print">Guess the country from the song, and grow your Spotify collection along the way.</p>
         </div>
         <div className="game-intro">
           <p>A song plays. You guess the country. Guess wrong and the clip gets longer.</p>
