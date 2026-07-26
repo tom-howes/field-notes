@@ -95,6 +95,7 @@ export interface CountryLeader {
   region: string | null
   leaderDisplayName: string
   attemptsTaken: number
+  songCount: number
 }
 
 export interface CollectedSong {

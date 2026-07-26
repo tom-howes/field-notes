@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { api, ApiError } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
+import { ContinentMap } from '../components/ContinentMap'
 
 type Tab = 'overall' | 'efficiency' | 'streaks' | 'continents' | 'countries'
 
@@ -42,6 +43,11 @@ export function LeaderboardPage() {
   const { data: continents, isLoading: continentsLoading } = useQuery({
     queryKey: ['leaderboard', 'continents'],
     queryFn: api.leaderboardContinents,
+    enabled: tab === 'continents',
+  })
+  const { data: allCountries = [] } = useQuery({
+    queryKey: ['countries'],
+    queryFn: api.countries,
     enabled: tab === 'continents',
   })
   const { data: countries, isLoading: countriesLoading } = useQuery({
@@ -178,24 +184,27 @@ export function LeaderboardPage() {
           {continentsLoading && <p>Loading...</p>}
           {continents && continents.length === 0 && <p>No countries collected yet.</p>}
           {continents && continents.length > 0 && (
-            <table className="leaderboard-table">
-              <thead>
-                <tr>
-                  <th>Continent</th>
-                  <th>Leader</th>
-                  <th>Countries</th>
-                </tr>
-              </thead>
-              <tbody>
-                {continents.map((row) => (
-                  <tr key={row.region}>
-                    <td>{row.region}</td>
-                    <td>{row.leaderDisplayName}</td>
-                    <td>{row.countriesInRegion}</td>
+            <>
+              <ContinentMap countries={allCountries} />
+              <table className="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th>Continent</th>
+                    <th>Leader</th>
+                    <th>Countries</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {continents.map((row) => (
+                    <tr key={row.region}>
+                      <td>{row.region}</td>
+                      <td>{row.leaderDisplayName}</td>
+                      <td>{row.countriesInRegion}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
           )}
         </>
       )}
@@ -235,7 +244,8 @@ export function LeaderboardPage() {
                     />
                     <span className="collection-country-name">{c.countryName}</span>
                     <span className="collection-country-meta">
-                      {c.leaderDisplayName} &middot; {c.attemptsTaken} attempt{c.attemptsTaken === 1 ? '' : 's'}
+                      {c.songCount} song{c.songCount === 1 ? '' : 's'} &middot; {c.leaderDisplayName} &middot;{' '}
+                      {c.attemptsTaken} attempt{c.attemptsTaken === 1 ? '' : 's'}
                     </span>
                   </div>
                 </div>

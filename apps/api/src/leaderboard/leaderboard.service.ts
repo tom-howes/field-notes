@@ -30,6 +30,7 @@ export interface CountryLeaderRow {
   region: string | null
   leaderDisplayName: string
   attemptsTaken: number
+  songCount: number
 }
 
 const MIN_COUNTRIES_FOR_EFFICIENCY_RANKING = 3
@@ -193,7 +194,15 @@ export class LeaderboardService {
   /** The player with the fewest attempts for each unlocked country (a per-country "best guess" board). */
   async getCountryLeaders(): Promise<CountryLeaderRow[]> {
     const rows = await this.prisma.$queryRaw<
-      { country_id: string; country_name: string; iso_code: string; region: string | null; display_name: string; attempts_taken: number }[]
+      {
+        country_id: string
+        country_name: string
+        iso_code: string
+        region: string | null
+        display_name: string
+        attempts_taken: number
+        song_count: number
+      }[]
     >(Prisma.sql`
       WITH per_country AS (
         SELECT
@@ -207,11 +216,17 @@ export class LeaderboardService {
         FROM user_collections uc
         JOIN countries c ON c.id = uc.country_id
         JOIN users u ON u.id = uc.user_id
+      ),
+      song_counts AS (
+        SELECT country_id, COUNT(*)::int AS song_count
+        FROM songs
+        GROUP BY country_id
       )
-      SELECT country_id, country_name, iso_code, region, display_name, attempts_taken
-      FROM per_country
-      WHERE country_rank = 1
-      ORDER BY country_name ASC
+      SELECT pc.country_id, pc.country_name, pc.iso_code, pc.region, pc.display_name, pc.attempts_taken, sc.song_count
+      FROM per_country pc
+      JOIN song_counts sc ON sc.country_id = pc.country_id
+      WHERE pc.country_rank = 1
+      ORDER BY pc.country_name ASC
     `)
 
     return rows.map((r) => ({
@@ -221,6 +236,7 @@ export class LeaderboardService {
       region: r.region,
       leaderDisplayName: r.display_name,
       attemptsTaken: r.attempts_taken,
+      songCount: r.song_count,
     }))
   }
 }

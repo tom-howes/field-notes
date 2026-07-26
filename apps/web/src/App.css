@@ -301,6 +301,7 @@ button:disabled {
 
 .collection-country-header {
   width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -323,11 +324,17 @@ button:disabled {
 .collection-country-name {
   font-weight: 600;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .collection-country-meta {
   font-size: 0.85rem;
   color: var(--text);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .collection-chevron {

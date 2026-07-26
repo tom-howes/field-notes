@@ -18,4 +18,7 @@ export class CountryLeaderDto {
 
   @ApiProperty({ description: "The leader's attempts taken for this country's best-collected song" })
   attemptsTaken!: number
+
+  @ApiProperty({ description: 'Total curated songs available for this country' })
+  songCount!: number
 }
