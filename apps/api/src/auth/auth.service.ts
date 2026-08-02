@@ -1,8 +1,11 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import * as bcrypt from 'bcryptjs'
 import * as jwt from 'jsonwebtoken'
 import { PrismaService } from '../prisma/prisma.service'
 import { deriveCodeChallenge } from './pkce.util'
+
+const BCRYPT_ROUNDS = 10
 
 const SPOTIFY_AUTHORIZE_URL = 'https://accounts.spotify.com/authorize'
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
@@ -165,6 +168,29 @@ export class AuthService {
     })
 
     return { accessToken: tokens.access_token, expiresAt: accessTokenExpiresAt }
+  }
+
+  /** Username/password sign-up — the guest-friendly alternative to Spotify OAuth, so
+   *  players (and anyone demoing the app) can get a saved collection without needing
+   *  a Spotify account added to this app's Development Mode allowlist. */
+  async signup(username: string, password: string) {
+    const existing = await this.prisma.user.findUnique({ where: { username } })
+    if (existing) {
+      throw new ConflictException('That username is already taken')
+    }
+
+    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)
+    return this.prisma.user.create({
+      data: { username, displayName: username, passwordHash },
+    })
+  }
+
+  async validateUsernamePassword(username: string, password: string) {
+    const user = await this.prisma.user.findUnique({ where: { username } })
+    if (!user?.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
+      throw new UnauthorizedException('Invalid username or password')
+    }
+    return user
   }
 
   issueSessionToken(userId: string): string {

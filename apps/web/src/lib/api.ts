@@ -24,8 +24,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new ApiError(res.status, body.message ?? res.statusText)
   }
 
-  if (res.status === 204) return undefined as T
-  return res.json() as Promise<T>
+  // Some endpoints (signup/login/logout) succeed with no body at all, not just on
+  // 204 — reading as text first avoids res.json() throwing on an empty response.
+  const text = await res.text()
+  return (text ? JSON.parse(text) : undefined) as T
 }
 
 export interface Country {
@@ -134,6 +136,10 @@ export interface CollectionResponse {
 export const api = {
   me: () => request<CurrentUser>('/auth/me'),
   spotifyToken: () => request<SpotifyTokenResponse>('/auth/spotify/token'),
+  signup: (username: string, password: string) =>
+    request<void>('/auth/signup', { method: 'POST', body: JSON.stringify({ username, password }) }),
+  login: (username: string, password: string) =>
+    request<void>('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
   countries: () => request<Country[]>('/countries'),
   startRound: () => request<StartRoundResponse>('/rounds', { method: 'POST' }),
   guess: (roundId: string, countryId: string) =>

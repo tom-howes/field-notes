@@ -123,6 +123,58 @@
   margin-top: 12px;
 }
 
+.guest-auth-toggle {
+  margin-top: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  opacity: 0.7;
+}
+
+.guest-auth-toggle:hover {
+  opacity: 1;
+}
+
+.guest-auth-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 16px;
+}
+
+.guest-auth-tabs {
+  display: flex;
+  gap: 8px;
+  align-self: center;
+}
+
+.guest-auth-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.guest-auth-tab.active {
+  background: #1db954;
+  border-color: #1db954;
+  color: #fff;
+}
+
+.guest-auth-input {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  color: var(--text-h);
+  font-size: 1rem;
+}
+
 .demo-account-toggle {
   padding: 6px 14px;
   border-radius: 20px;

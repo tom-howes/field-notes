@@ -1,14 +1,16 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Query,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common'
-import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { ApiCookieAuth, ApiConflictResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 import { ConfigService } from '@nestjs/config'
 import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
@@ -19,6 +21,8 @@ import type { AuthenticatedRequest } from './session-auth.guard'
 import { PrismaService } from '../prisma/prisma.service'
 import { CurrentUserDto } from './dto/current-user.dto'
 import { SpotifyTokenDto } from './dto/spotify-token.dto'
+import { SignupDto } from './dto/signup.dto'
+import { LoginDto } from './dto/login.dto'
 
 const OAUTH_COOKIE_MAX_AGE_MS = 5 * 60 * 1000
 const SESSION_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
@@ -47,10 +51,20 @@ export class AuthController {
     return this.isSecureCookies() ? 'none' : 'lax'
   }
 
+  private startSession(res: Response, userId: string) {
+    const sessionToken = this.authService.issueSessionToken(userId)
+    res.cookie('session', sessionToken, {
+      httpOnly: true,
+      sameSite: this.cookieSameSite(),
+      secure: this.isSecureCookies(),
+      maxAge: SESSION_COOKIE_MAX_AGE_MS,
+    })
+  }
+
   @Get('spotify/login')
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Start Spotify OAuth 2.0 authorization code + PKCE flow' })
-  login(@Res() res: Response) {
+  spotifyLogin(@Res() res: Response) {
     const state = generateState()
     const codeVerifier = generateCodeVerifier()
 
@@ -97,15 +111,30 @@ export class AuthController {
     const profile = await this.authService.fetchSpotifyProfile(tokens.access_token)
     const user = await this.authService.upsertUserFromSpotify(profile, tokens)
 
-    const sessionToken = this.authService.issueSessionToken(user.id)
-    res.cookie('session', sessionToken, {
-      httpOnly: true,
-      sameSite: this.cookieSameSite(),
-      secure: this.isSecureCookies(),
-      maxAge: SESSION_COOKIE_MAX_AGE_MS,
-    })
-
+    this.startSession(res, user.id)
     res.redirect(this.config.getOrThrow('WEB_APP_URL'))
+  }
+
+  @Post('signup')
+  @HttpCode(201)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Create a username/password account — an alternative to Spotify sign-in that still saves a collection' })
+  @ApiConflictResponse({ description: 'Username already taken' })
+  async signup(@Body() dto: SignupDto, @Res() res: Response) {
+    const user = await this.authService.signup(dto.username, dto.password)
+    this.startSession(res, user.id)
+    res.status(201).send()
+  }
+
+  @Post('login')
+  @HttpCode(204)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Sign in to a username/password account' })
+  @ApiUnauthorizedResponse({ description: 'Invalid username or password' })
+  async login(@Body() dto: LoginDto, @Res() res: Response) {
+    const user = await this.authService.validateUsernamePassword(dto.username, dto.password)
+    this.startSession(res, user.id)
+    res.status(204).send()
   }
 
   @Post('logout')
