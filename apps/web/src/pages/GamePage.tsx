@@ -10,7 +10,6 @@ import { WorldMap } from '../components/WorldMap'
 import type { GuessMarker } from '../components/WorldMap'
 import { Waveform } from '../components/Waveform'
 import { Logo } from '../components/Logo'
-import { DemoAccountNote } from '../components/DemoAccountNote'
 import { GuestAuthForm } from '../components/GuestAuthForm'
 import { CORRECT_COLOR, colorForDistance } from '../lib/distanceColor'
 
@@ -69,7 +68,6 @@ export function GamePage() {
             Sign in with Spotify
           </a>
           <span className="premium-note">Works with any Spotify account &mdash; better experience with Premium</span>
-          <DemoAccountNote />
           <GuestAuthForm />
         </div>
       </div>
