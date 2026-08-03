@@ -4,7 +4,7 @@ import { api, ApiError } from '../lib/api'
 
 type Mode = 'signup' | 'login'
 
-export function GuestAuthForm() {
+export function AccountAuthForm() {
   const queryClient = useQueryClient()
   const [expanded, setExpanded] = useState(false)
   const [mode, setMode] = useState<Mode>('signup')
@@ -33,32 +33,32 @@ export function GuestAuthForm() {
 
   if (!expanded) {
     return (
-      <button type="button" className="guest-auth-toggle" onClick={() => setExpanded(true)}>
-        Or play as a guest, no Spotify needed
+      <button type="button" className="account-auth-toggle" onClick={() => setExpanded(true)}>
+        Make a FieldNotes account (recommended)
       </button>
     )
   }
 
   return (
-    <form className="guest-auth-form" onSubmit={handleSubmit}>
-      <div className="guest-auth-tabs">
+    <form className="account-auth-form" onSubmit={handleSubmit}>
+      <div className="account-auth-tabs">
         <button
           type="button"
-          className={mode === 'signup' ? 'guest-auth-tab active' : 'guest-auth-tab'}
+          className={mode === 'signup' ? 'account-auth-tab active' : 'account-auth-tab'}
           onClick={() => setMode('signup')}
         >
           Sign up
         </button>
         <button
           type="button"
-          className={mode === 'login' ? 'guest-auth-tab active' : 'guest-auth-tab'}
+          className={mode === 'login' ? 'account-auth-tab active' : 'account-auth-tab'}
           onClick={() => setMode('login')}
         >
           Log in
         </button>
       </div>
       <input
-        className="guest-auth-input"
+        className="account-auth-input"
         type="text"
         placeholder="Username"
         autoComplete="username"
@@ -67,7 +67,7 @@ export function GuestAuthForm() {
         required
       />
       <input
-        className="guest-auth-input"
+        className="account-auth-input"
         type="password"
         placeholder="Password"
         autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}

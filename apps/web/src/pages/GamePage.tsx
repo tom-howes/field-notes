@@ -10,7 +10,7 @@ import { WorldMap } from '../components/WorldMap'
 import type { GuessMarker } from '../components/WorldMap'
 import { Waveform } from '../components/Waveform'
 import { Logo } from '../components/Logo'
-import { GuestAuthForm } from '../components/GuestAuthForm'
+import { AccountAuthForm } from '../components/AccountAuthForm'
 import { CORRECT_COLOR, colorForDistance } from '../lib/distanceColor'
 
 const PROGRESS_TICK_MS = 100
@@ -67,8 +67,12 @@ export function GamePage() {
           <a className="spotify-login-button" href={api.loginUrl()}>
             Sign in with Spotify
           </a>
-          <span className="premium-note">Works with any Spotify account &mdash; better experience with Premium</span>
-          <GuestAuthForm />
+          <p className="info-box">
+            Spotify sign-in only works for a short list of developer-approved accounts (a Spotify
+            platform restriction) &mdash; if that's not you, a FieldNotes account below works just
+            as well.
+          </p>
+          <AccountAuthForm />
         </div>
       </div>
     )
