@@ -140,7 +140,14 @@ export class AuthController {
   @Post('logout')
   @ApiOperation({ summary: 'Clear the session cookie' })
   logout(@Res() res: Response) {
-    res.clearCookie('session')
+    // Must match the sameSite/secure options the cookie was set with (startSession),
+    // or the browser won't recognize this as the same cookie to overwrite/expire —
+    // particularly SameSite=None cookies in production, which silently failed to clear.
+    res.clearCookie('session', {
+      httpOnly: true,
+      sameSite: this.cookieSameSite(),
+      secure: this.isSecureCookies(),
+    })
     res.status(204).send()
   }
 
