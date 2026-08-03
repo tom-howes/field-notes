@@ -10,6 +10,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   const config = app.get(ConfigService)
 
+  // Routed behind the same CloudFront distribution as the frontend, under this
+  // path prefix — keeps the session cookie same-origin instead of cross-site,
+  // which browsers increasingly block (Safari's ITP, Chrome's third-party
+  // cookie restrictions) regardless of how correctly SameSite=None is set up.
+  app.setGlobalPrefix('api')
+
   app.use(helmet())
   app.use(cookieParser())
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))

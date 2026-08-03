@@ -1,5 +1,5 @@
 output "api_url" {
-  value = "https://${aws_cloudfront_distribution.api.domain_name}"
+  value = "https://${aws_cloudfront_distribution.web.domain_name}/api"
 }
 
 output "web_url" {
@@ -28,5 +28,5 @@ output "web_cloudfront_distribution_id" {
 
 output "spotify_redirect_uri" {
   description = "Register this exact URI in the Spotify Developer Dashboard for this app"
-  value       = "https://${aws_cloudfront_distribution.api.domain_name}/auth/spotify/callback"
+  value       = "https://${aws_cloudfront_distribution.web.domain_name}/api/auth/spotify/callback"
 }

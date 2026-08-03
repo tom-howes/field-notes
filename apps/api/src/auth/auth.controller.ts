@@ -40,22 +40,17 @@ export class AuthController {
     return this.config.get('NODE_ENV') === 'production'
   }
 
-  // In production the frontend (S3/CloudFront) and API (ALB/CloudFront) are on
-  // different domains, so this is a genuinely cross-site request from the
-  // browser's point of view — SameSite=Lax cookies aren't sent on cross-site
-  // fetch/XHR calls (only top-level navigations), which is fine in local dev
-  // where both run on 127.0.0.1 (same site, different ports) but breaks every
-  // API call after login in production. None requires Secure, which we already
-  // set from NODE_ENV.
-  private cookieSameSite(): 'lax' | 'none' {
-    return this.isSecureCookies() ? 'none' : 'lax'
-  }
-
   private startSession(res: Response, userId: string) {
     const sessionToken = this.authService.issueSessionToken(userId)
+    // Frontend and API are served from the same CloudFront distribution (this API
+    // is mounted under /api on it), so the cookie is always same-origin — Lax is
+    // both sufficient and the safer default. Previously this needed SameSite=None
+    // for a genuinely cross-site setup, which browsers increasingly block as a
+    // third-party cookie (Safari's ITP, Chrome's cross-site cookie restrictions)
+    // regardless of how correctly it's configured.
     res.cookie('session', sessionToken, {
       httpOnly: true,
-      sameSite: this.cookieSameSite(),
+      sameSite: 'lax',
       secure: this.isSecureCookies(),
       maxAge: SESSION_COOKIE_MAX_AGE_MS,
     })
@@ -141,11 +136,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Clear the session cookie' })
   logout(@Res() res: Response) {
     // Must match the sameSite/secure options the cookie was set with (startSession),
-    // or the browser won't recognize this as the same cookie to overwrite/expire —
-    // particularly SameSite=None cookies in production, which silently failed to clear.
+    // or the browser won't recognize this as the same cookie to overwrite/expire.
     res.clearCookie('session', {
       httpOnly: true,
-      sameSite: this.cookieSameSite(),
+      sameSite: 'lax',
       secure: this.isSecureCookies(),
     })
     res.status(204).send()

@@ -76,7 +76,7 @@ resource "aws_ecs_task_definition" "api" {
       environment = [
         { name = "NODE_ENV", value = "production" },
         { name = "SPOTIFY_CLIENT_ID", value = var.spotify_client_id },
-        { name = "SPOTIFY_REDIRECT_URI", value = "https://${aws_cloudfront_distribution.api.domain_name}/auth/spotify/callback" },
+        { name = "SPOTIFY_REDIRECT_URI", value = "https://${aws_cloudfront_distribution.web.domain_name}/api/auth/spotify/callback" },
         { name = "WEB_APP_URL", value = "https://${aws_cloudfront_distribution.web.domain_name}" },
       ]
 
