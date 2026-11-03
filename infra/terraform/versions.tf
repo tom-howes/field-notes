@@ -9,7 +9,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "field-notes-tfstate-447580526476"
+    bucket = "field-notes-tfstate-272403791979"
     key    = "field-notes/terraform.tfstate"
     region = "us-east-1"
   }
