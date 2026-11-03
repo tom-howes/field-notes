@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { api } from '../lib/api'
 import type { GuessResponse, StartRoundResponse } from '../lib/api'
@@ -24,6 +24,7 @@ interface GuessHistoryEntry {
 }
 
 export function GamePage() {
+  const queryClient = useQueryClient()
   const { user, isLoading: authLoading, isAuthenticated } = useAuth()
   const isPremium = user?.isPremium ?? false
   const premiumPlayer = useSpotifyPlayer(isAuthenticated && isPremium)
@@ -54,6 +55,11 @@ export function GamePage() {
     return <div className="page">Loading...</div>
   }
 
+  async function handleTryGuest() {
+    await api.tryAsGuest()
+    await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="page">
@@ -64,14 +70,24 @@ export function GamePage() {
         </div>
         <div className="game-intro">
           <p>A song plays. You guess the country. Guess wrong and the clip gets longer.</p>
-          <a className="spotify-login-button" href={api.loginUrl()}>
-            Sign in with Spotify
-          </a>
-          <p className="info-box">
-            Spotify sign-in only works for a short list of developer-approved accounts (a Spotify
-            platform restriction) &mdash; if that's not you, a FieldNotes account below works just
-            as well.
-          </p>
+          <div className="spotify-login-row">
+            <a className="spotify-login-button" href={api.loginUrl()}>
+              Sign in with Spotify
+            </a>
+            <span className="info-tooltip">
+              <button type="button" className="info-tooltip-icon" aria-label="Why might Spotify sign-in not work?">
+                ?
+              </button>
+              <span className="info-tooltip-text">
+                Spotify only allows a short list of developer-approved accounts to sign in &mdash;
+                if that's not you, try the guest option below instead.
+              </span>
+            </span>
+          </div>
+          <p className="info-box">Recruiter or curious internet stranger? Try as a guest today below</p>
+          <button type="button" className="guest-trial-button" onClick={handleTryGuest}>
+            Try as a guest
+          </button>
           <AccountAuthForm />
         </div>
       </div>

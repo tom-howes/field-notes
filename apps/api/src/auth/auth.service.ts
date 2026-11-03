@@ -185,6 +185,17 @@ export class AuthService {
     })
   }
 
+  /** Zero-friction trial: no form, no credentials, just a session — for anyone who wants to
+   *  try the core mechanic before committing to an account. Has no spotifyUserId, username,
+   *  or passwordHash, which is exactly what marks it as a guest (there's no way back into
+   *  this session once the cookie is gone, by design). */
+  async createGuestSession() {
+    const suffix = Math.floor(1000 + Math.random() * 9000)
+    return this.prisma.user.create({
+      data: { displayName: `Guest${suffix}` },
+    })
+  }
+
   async validateUsernamePassword(username: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { username } })
     if (!user?.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {

@@ -140,6 +140,7 @@ export const api = {
     request<void>('/auth/signup', { method: 'POST', body: JSON.stringify({ username, password }) }),
   login: (username: string, password: string) =>
     request<void>('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+  tryAsGuest: () => request<void>('/auth/guest', { method: 'POST' }),
   countries: () => request<Country[]>('/countries'),
   startRound: () => request<StartRoundResponse>('/rounds', { method: 'POST' }),
   guess: (roundId: string, countryId: string) =>

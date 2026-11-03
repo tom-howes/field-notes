@@ -132,6 +132,16 @@ export class AuthController {
     res.status(204).send()
   }
 
+  @Post('guest')
+  @HttpCode(204)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiOperation({ summary: 'Start a no-signup guest session — no way back in once the cookie is gone' })
+  async guest(@Res() res: Response) {
+    const user = await this.authService.createGuestSession()
+    this.startSession(res, user.id)
+    res.status(204).send()
+  }
+
   @Post('logout')
   @ApiOperation({ summary: 'Clear the session cookie' })
   logout(@Res() res: Response) {

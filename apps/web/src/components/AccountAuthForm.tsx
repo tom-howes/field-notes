@@ -34,7 +34,7 @@ export function AccountAuthForm() {
   if (!expanded) {
     return (
       <button type="button" className="account-auth-toggle" onClick={() => setExpanded(true)}>
-        Make a FieldNotes account (recommended)
+        Make a FieldNotes account
       </button>
     )
   }

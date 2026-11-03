@@ -93,15 +93,90 @@
   margin: 0;
 }
 
-.spotify-login-button {
+.spotify-login-row {
+  position: relative;
   display: inline-block;
   margin-top: 16px;
+}
+
+.spotify-login-button {
+  display: inline-block;
   padding: 12px 24px;
   background: #1db954;
   color: #fff;
   font-weight: 600;
   border-radius: 24px;
   text-decoration: none;
+}
+
+.info-tooltip {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-left: 8px;
+  transform: translateY(-50%);
+  display: inline-flex;
+}
+
+.info-tooltip-icon {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  background: var(--accent-bg);
+  border: 1.5px solid var(--accent-border);
+  color: var(--accent);
+}
+
+.info-tooltip-icon:hover {
+  background: var(--accent-border);
+  color: #fff;
+}
+
+.info-tooltip-text {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.info-tooltip-icon:hover + .info-tooltip-text,
+.info-tooltip-icon:focus + .info-tooltip-text {
+  opacity: 1;
+  visibility: visible;
+}
+
+.guest-trial-button {
+  margin-top: 12px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #14b8a6;
+  border: none;
+  color: #fff;
+}
+
+.guest-trial-button:hover {
+  box-shadow: 0 4px 14px rgba(20, 184, 166, 0.45);
 }
 
 .info-box {
@@ -123,7 +198,7 @@
 }
 
 .account-auth-toggle {
-  margin-top: 16px;
+  margin-top: 20px;
   padding: 12px 24px;
   border-radius: 24px;
   font-size: 1rem;
@@ -144,7 +219,7 @@
   gap: 10px;
   width: 100%;
   max-width: 280px;
-  margin-top: 16px;
+  margin-top: 20px;
 }
 
 .account-auth-tabs {
