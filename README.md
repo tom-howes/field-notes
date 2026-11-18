@@ -6,8 +6,7 @@
 
 No signup needed. There is a guest option on the landing page if you just want to see it work.
 
-<!-- Worth adding a screenshot or a short GIF of a round here. It is the single highest-value
-     addition to this file: a reviewer decides whether to keep reading in about three seconds. -->
+![Alt Text](images/screenshot.png)   
 
 ---
 
