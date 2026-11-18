@@ -85,8 +85,9 @@ experiences. This was a product decision that happened to be implemented in code
 `apps/api/src/leaderboard`
 
 Rankings use window functions (`RANK() OVER (PARTITION BY ...)`) rather than sorting in application
-code. Streaks use a gaps-and-islands pattern to find consecutive runs of correct days. Both belong
-in the database, and putting them there keeps the API thin.
+code. Streaks use a gaps-and-islands pattern to find a player's current run of consecutive wins,
+counting back from their most recent round. Both belong in the database, and putting them there
+keeps the API thin.
 
 ## Repository layout
 
@@ -95,8 +96,9 @@ apps/
   api/            NestJS API
     src/
       auth/       OAuth 2.0 + PKCE, session guard
-      rounds/     round generation and guess scoring
-      countries/  country data and geometry
+      rounds/     round generation, guess scoring, and the country border geometry
+                   (topojson + polygon-distance lookups) scoring depends on
+      countries/  the country list itself: name, ISO code, region, lock status
       collection/ the collection a player builds up
       leaderboard/ ranking and streak queries
       prisma/     database client and schema access
